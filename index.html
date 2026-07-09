@@ -64,7 +64,7 @@
   .section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--primary) 0%, transparent 100%); }
 
   /* CARDS */
-  .cards-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
   .card { background: #ffffff; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border); display: block; }
   .card:hover { transform: scale(1.05); box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px var(--primary); }
   .card-thumb { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
@@ -103,8 +103,7 @@
 
     .hero-banner { height: 420px; margin-top: 100px; }
     .banner-slide { padding: 24px; align-items: flex-end; }
-    .banner-bg { padding-right: 20px; }
-    .banner-bg i { font-size: 140px; }
+    .banner-bg { display: none; }
     .banner-title { font-size: 32px; }
     .banner-desc { font-size: 13px; margin-bottom: 18px; }
     .banner-btn { padding: 10px 18px; font-size: 13px; }
@@ -112,7 +111,6 @@
 
     .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .card-thumb { height: 90px; }
-    .card-thumb i { font-size: 36px; }
 
     .section { padding: 10px 16px 24px; }
     .divider { margin: 10px 16px 0; }
@@ -194,6 +192,7 @@
   </div>
 
   <!-- Slide 5: Language Lab -->
+  <!-- Slide 5: Language Lab -->
   <div class="banner-slide" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 60%, #e0f2fe 100%);">
     <div class="banner-bg"><img src="languagelab.png" alt="Language Lab"></div>
     <div class="banner-content">
@@ -207,6 +206,20 @@
     </div>
   </div>
 
+  <!-- Slide 6: Micro Credential Course Designer -->
+  <div class="banner-slide" style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 60%, #f5f3ff 100%);">
+    <div class="banner-bg"><i class="ti ti-certificate" style="font-size:300px; opacity:0.07; color:#db2777;"></i></div>
+    <div class="banner-content">
+      <span class="banner-badge"><i class="ti ti-certificate" style="font-size:12px;"></i> Credentials</span>
+      <div class="banner-title">Micro <span>Credential</span></div>
+      <div class="banner-desc">AI-powered course designer for micro-credentials. Structure short, outcome-based courses with badges, assessments and stackable pathways for lifelong learners.</div>
+      <div class="banner-btns">
+        <a href="https://chatgpt.com/g/g-6a4f47d867948191907e59f0e1a0a06b-micro-credential-course-designer" target="_blank" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
+        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+      </div>
+    </div>
+  </div>
+
   <div class="banner-bottom-fade"></div>
 
   <div class="banner-dots">
@@ -215,6 +228,7 @@
     <div class="banner-dot" onclick="goTo(2)"></div>
     <div class="banner-dot" onclick="goTo(3)"></div>
     <div class="banner-dot" onclick="goTo(4)"></div>
+    <div class="banner-dot" onclick="goTo(5)"></div>
   </div>
 </div>
 
@@ -227,46 +241,49 @@
   <div class="cards-grid">
 
     <div class="card" onclick="goTo(0)">
-      <div class="card-thumb bg-1"><img src="fourquad.png" alt="FourQuad"></div>
+      <div class="card-thumb bg-1"><span style="font-size:22px; font-weight:800; color:#1a56db;">FourQuad<br><small style="font-weight:500; font-size:13px; color:#64748b;">AI Planning Tool</small></span></div>
       <div class="card-body">
-        <div class="card-title">FourQuad</div>
         <span class="card-badge" style="color:#1a56db; border-color:#1a56db;">Planner</span>
         <div class="coming-soon" style="color:#16a34a;">● Live</div>
       </div>
     </div>
 
     <div class="card" onclick="goTo(1)">
-      <div class="card-thumb bg-2"><img src="oldplanner.png" alt="ODL Planner"></div>
+      <div class="card-thumb bg-2"><span style="font-size:22px; font-weight:800; color:#0ea5e9;">ODL Designer<br><small style="font-weight:500; font-size:13px; color:#64748b;">Course Blueprint</small></span></div>
       <div class="card-body">
-        <div class="card-title">ODL Planner</div>
         <span class="card-badge" style="color:#0ea5e9; border-color:#0ea5e9;">Blueprint</span>
         <div class="coming-soon" style="color:#16a34a;">● Live</div>
       </div>
     </div>
 
     <div class="card" onclick="goTo(2)">
-      <div class="card-thumb bg-3"><img src="bodhiplanner.png" alt="Bodhi Planner"></div>
+      <div class="card-thumb bg-3"><span style="font-size:22px; font-weight:800; color:#059669;">Bodhi Planner<br><small style="font-weight:500; font-size:13px; color:#64748b;">Lesson Design</small></span></div>
       <div class="card-body">
-        <div class="card-title">Bodhi Planner</div>
         <span class="card-badge" style="color:#059669; border-color:#059669;">Learning</span>
         <div class="coming-soon" style="color:#16a34a;">● Live</div>
       </div>
     </div>
 
     <div class="card" onclick="goTo(3)">
-      <div class="card-thumb bg-4"><img src="oerfinder.png" alt="OER Finder"></div>
+      <div class="card-thumb bg-4"><span style="font-size:22px; font-weight:800; color:#d97706;">OER Finder<br><small style="font-weight:500; font-size:13px; color:#64748b;">Open Resources</small></span></div>
       <div class="card-body">
-        <div class="card-title">OER Finder</div>
         <span class="card-badge" style="color:#d97706; border-color:#d97706;">Resources</span>
         <div class="coming-soon">Coming soon</div>
       </div>
     </div>
 
     <div class="card" onclick="goTo(4)">
-      <div class="card-thumb bg-5"><img src="languagelab.png" alt="Language Lab"></div>
+      <div class="card-thumb bg-5"><span style="font-size:22px; font-weight:800; color:#7c3aed;">Language Lab<br><small style="font-weight:500; font-size:13px; color:#64748b;">Interactive Learning</small></span></div>
       <div class="card-body">
-        <div class="card-title">Language Lab</div>
         <span class="card-badge" style="color:#7c3aed; border-color:#7c3aed;">Language</span>
+        <div class="coming-soon" style="color:#16a34a;">● Live</div>
+      </div>
+    </div>
+
+    <div class="card" onclick="goTo(5)">
+      <div class="card-thumb" style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);"><span style="font-size:22px; font-weight:800; color:#db2777;">Micro Credential<br><small style="font-weight:500; font-size:13px; color:#64748b;">Course Designer</small></span></div>
+      <div class="card-body">
+        <span class="card-badge" style="color:#db2777; border-color:#db2777;">Credentials</span>
         <div class="coming-soon" style="color:#16a34a;">● Live</div>
       </div>
     </div>
