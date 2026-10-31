@@ -1,314 +1,1127 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIDeaLab - BRAOU</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="AIDeaLab - AI-powered tools and digital resources for teaching, learning and Open Distance Learning at Dr. B.R. Ambedkar Open University.">
+<title>AIDeaLab | BRAOU</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
 <style>
-  :root {
-    --primary: #1a56db;
-    --primary-dark: #1244b0;
-    --primary-light: #e8f0fe;
-    --accent: #0ea5e9;
-    --accent-light: #e0f2fe;
-    --bg: #f8fbff;
-    --bg2: #ffffff;
-    --bg3: #f0f7ff;
-    --text: #1e293b;
-    --text-muted: #64748b;
-    --border: #e2e8f0;
-    --gold: #d97706;
-    --gold-light: #fef3c7;
+:root {
+  --primary: #1a56db;
+  --primary-dark: #1244b0;
+  --primary-light: #e8f0fe;
+  --accent: #0ea5e9;
+  --bg: #f7f9fd;
+  --white: #ffffff;
+  --text: #172033;
+  --muted: #64748b;
+  --border: #e5eaf2;
+  --radius: 18px;
+  --shadow: 0 8px 30px rgba(25, 50, 90, .07);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', Arial, sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+}
+
+/* HEADER */
+
+.uni-banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 88px;
+  width: 100%;
+  padding: 12px clamp(18px, 5vw, 70px);
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.uni-banner img {
+  width: auto;
+  max-width: min(60%, 420px);
+  max-height: 66px;
+  object-fit: contain;
+  display: block;
+}
+
+.nav-brand {
+  font-size: 23px;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.nav-brand span {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* HERO */
+
+.hero-banner {
+  position: relative;
+  width: 100%;
+  min-height: 490px;
+  height: min(570px, 55vw);
+  overflow: hidden;
+  background: #eaf2ff;
+}
+
+.banner-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: clamp(28px, 7vw, 100px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .7s ease, visibility .7s ease;
+  pointer-events: none;
+}
+
+.banner-slide.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.banner-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 5%;
+  pointer-events: none;
+}
+
+.banner-bg img {
+  width: 46%;
+  max-height: 420px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 25px rgba(0,0,0,.08));
+}
+
+.banner-bg i {
+  font-size: clamp(150px, 24vw, 300px);
+  color: var(--primary);
+  opacity: .07;
+}
+
+.banner-content {
+  position: relative;
+  z-index: 5;
+  max-width: 570px;
+  width: 60%;
+}
+
+.banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.75);
+  color: var(--primary);
+  border: 1px solid rgba(26,86,219,.25);
+  border-radius: 50px;
+  padding: 7px 15px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+}
+
+.banner-title {
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -2px;
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+
+.banner-title span {
+  color: var(--primary);
+}
+
+.banner-desc {
+  max-width: 480px;
+  color: #526078;
+  font-size: 15px;
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+.banner-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.banner-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 23px;
+  min-height: 46px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: .2s ease;
+}
+
+.banner-btn-primary {
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 5px 15px rgba(26,86,219,.2);
+}
+
+.banner-btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.banner-btn-secondary {
+  background: rgba(255,255,255,.85);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.banner-btn-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* CAROUSEL CONTROLS */
+
+.banner-dots {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.banner-dot {
+  border: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 20px;
+  background: rgba(30,50,80,.25);
+  cursor: pointer;
+  transition: .3s;
+  padding: 0;
+}
+
+.banner-dot.active {
+  width: 28px;
+  background: var(--primary);
+}
+
+.banner-arrow {
+  position: absolute;
+  z-index: 20;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  transition: .2s;
+}
+
+.banner-arrow:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.banner-prev { left: 20px; }
+.banner-next { right: 20px; }
+
+/* SECTION */
+
+.section {
+  padding: 45px clamp(18px, 5vw, 70px) 55px;
+  max-width: 1600px;
+  margin: auto;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 21px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.5px;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* APPLICATION CARDS */
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 260px;
+  text-decoration: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+a.card:hover {
+  transform: translateY(-7px);
+  border-color: rgba(26,86,219,.4);
+  box-shadow: 0 16px 38px rgba(25,50,90,.12);
+}
+
+.card:focus-visible,
+.banner-btn:focus-visible,
+.banner-dot:focus-visible,
+.banner-arrow:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.card-thumb {
+  min-height: 165px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.card-thumb::before {
+  content: '';
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.45);
+  right: -65px;
+  top: -75px;
+}
+
+.card-thumb::after {
+  content: '';
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.35);
+  left: -40px;
+  bottom: -60px;
+}
+
+.card-art-title {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-size: clamp(19px, 2vw, 26px);
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.card-art-title small {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.card-body {
+  padding: 17px 19px;
+  border-top: 1px solid #f0f2f7;
+}
+
+.card-body-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 30px;
+  border: 1px solid;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.card-description {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+.card-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.card-status.soon {
+  color: #b7791f;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.card-disabled {
+  cursor: not-allowed;
+  opacity: .8;
+}
+
+.card-disabled:hover {
+  transform: none;
+}
+
+/* BACKGROUNDS */
+
+.bg-1 { background: linear-gradient(135deg,#eff6ff,#dbeafe); }
+.bg-2 { background: linear-gradient(135deg,#f0f9ff,#d9f0ff); }
+.bg-3 { background: linear-gradient(135deg,#ecfdf5,#d1fae5); }
+.bg-4 { background: linear-gradient(135deg,#fffbeb,#fef3c7); }
+.bg-5 { background: linear-gradient(135deg,#f5f3ff,#ede9fe); }
+.bg-6 { background: linear-gradient(135deg,#fdf2f8,#fce7f3); }
+
+/* FOOTER */
+
+.footer {
+  padding: 28px 18px;
+  text-align: center;
+  background: white;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.footer strong {
+  color: var(--primary);
+}
+
+/* TABLET */
+
+@media (max-width: 950px) {
+  .hero-banner {
+    height: 500px;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); font-family: Arial, sans-serif; color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-  /* NAV */
-  .uni-banner { width: 100%; position: fixed; top: 0; z-index: 101; background: #ffffff; display: flex; align-items: center; justify-content: space-between; padding: 12px 40px; border-bottom: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.05); min-height: 100px; }
-  .uni-banner img { height: 85px; display: block; }
-  .nav-brand { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
-  .nav-brand span { color: var(--text-muted); font-weight: 400; font-size: 13px; margin-left: 6px; letter-spacing: 1px; }
-
-  /* HERO BANNER */
-  .hero-banner { position: relative; width: 100%; height: 520px; margin-top: 100px; overflow: hidden; }
-  .banner-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: flex-end; padding: 60px; opacity: 0; transition: opacity 0.9s ease; pointer-events: none; }
-  .banner-slide.active { opacity: 1; pointer-events: all; }
-  .banner-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; }
-  .banner-bg i { font-size: 300px; opacity: 0.07; color: var(--primary); }
-  .banner-bg img { height: 420px; opacity: 0.95; object-fit: contain; border-radius: 12px; }
-  .banner-content { position: relative; z-index: 5; max-width: 560px; }
-  .banner-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 4px 14px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; border: 1px solid var(--primary); color: var(--primary); background: rgba(26,86,219,0.08); }
-  .banner-title { font-size: 54px; font-weight: 900; line-height: 1.05; margin-bottom: 16px; color: var(--text); }
-  .banner-title span { color: var(--primary); }
-  .banner-desc { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin-bottom: 28px; max-width: 480px; }
-  .banner-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-  .banner-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
-  .banner-btn-primary { background: var(--primary); color: #fff; }
-  .banner-btn-primary:hover { background: var(--primary-dark); }
-  .banner-btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--border); }
-  .banner-btn-secondary:hover { background: var(--bg3); border-color: var(--primary); }
-
-  /* BANNER DOTS */
-  .banner-dots { position: absolute; bottom: 20px; right: 40px; z-index: 10; display: flex; gap: 8px; align-items: center; }
-  .banner-dot { width: 10px; height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px; cursor: pointer; transition: all 0.3s; }
-  .banner-dot.active { background: var(--primary); width: 28px; }
-
-  /* BOTTOM FADE */
-  .banner-bottom-fade { position: absolute; bottom: 0; left: 0; width: 100%; height: 140px; z-index: 3; background: linear-gradient(transparent, var(--bg)); pointer-events: none; }
-
-  /* SECTION */
-  .section { padding: 10px 40px 30px; }
-  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-  .section-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: 1px; }
-  .section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--primary) 0%, transparent 100%); }
-
-  /* CARDS */
-  .cards-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
-  .card { background: #ffffff; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border); display: block; }
-  .card:hover { transform: scale(1.05); box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px var(--primary); }
-  .card-thumb { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-  .card-thumb i { font-size: 48px; }
-  .card-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px 12px 0 0; }
-  .card-thumb::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, #ffffff); }
-  .card-body { padding: 10px 12px 14px; }
-  .card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-  .card-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; border: 1px solid; }
-  .coming-soon { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
-
-  /* Tool specific backgrounds */
-  .bg-1 { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
-  .bg-2 { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); }
-  .bg-3 { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
-  .bg-4 { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
-  .bg-5 { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
-
-  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 10px 40px 0; }
-  .footer { padding: 20px 40px; text-align: center; font-size: 12px; color: var(--text-muted); }
-  .footer span { color: var(--primary); }
-
-  /* ─── RESPONSIVE: Tablet (768px and below) ─── */
-  @media (max-width: 900px) {
-    .cards-grid { grid-template-columns: repeat(3, 1fr); }
-    .banner-bg i { font-size: 200px; }
-    .banner-title { font-size: 42px; }
-    .section { padding: 10px 24px 30px; }
+  .banner-slide {
+    padding: 50px;
   }
 
-  /* ─── RESPONSIVE: Mobile (600px and below) ─── */
-  @media (max-width: 600px) {
-    .uni-banner { flex-direction: column; padding: 10px 16px; gap: 6px; min-height: auto; }
-    .uni-banner img { position: static; transform: none; height: 40px; }
-    .nav-brand { font-size: 16px; }
-
-    .hero-banner { height: 420px; margin-top: 100px; }
-    .banner-slide { padding: 24px; align-items: flex-end; }
-    .banner-bg { display: none; }
-    .banner-title { font-size: 32px; }
-    .banner-desc { font-size: 13px; margin-bottom: 18px; }
-    .banner-btn { padding: 10px 18px; font-size: 13px; }
-    .banner-dots { right: 20px; bottom: 14px; }
-
-    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .card-thumb { height: 90px; }
-
-    .section { padding: 10px 16px 24px; }
-    .divider { margin: 10px 16px 0; }
-    .footer { padding: 16px; font-size: 11px; }
+  .banner-content {
+    width: 65%;
   }
 
-  /* ─── RESPONSIVE: Very small phones (380px and below) ─── */
-  @media (max-width: 380px) {
-    .cards-grid { grid-template-columns: 1fr; }
-    .banner-title { font-size: 26px; }
-    .hero-banner { height: 380px; }
+  .banner-bg img {
+    width: 40%;
   }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .uni-banner {
+    min-height: 72px;
+    padding: 9px 15px;
+    gap: 8px;
+  }
+
+  .uni-banner img {
+    max-width: 64%;
+    max-height: 48px;
+  }
+
+  .nav-brand {
+    font-size: 17px;
+    letter-spacing: 0;
+  }
+
+  .nav-brand span {
+    font-size: 8px;
+    letter-spacing: .8px;
+  }
+
+  .hero-banner {
+    min-height: 490px;
+    height: auto;
+  }
+
+  .banner-slide {
+    min-height: 490px;
+    padding: 35px 23px 65px;
+    align-items: flex-end;
+  }
+
+  .banner-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .banner-bg {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 12px 18px;
+    opacity: .28;
+  }
+
+  .banner-bg img {
+    width: 58%;
+    max-height: 190px;
+  }
+
+  .banner-bg i {
+    font-size: 150px;
+  }
+
+  .banner-badge {
+    font-size: 10px;
+    padding: 6px 12px;
+    margin-bottom: 13px;
+  }
+
+  .banner-title {
+    font-size: clamp(33px, 9vw, 44px);
+    letter-spacing: -1.5px;
+    margin-bottom: 12px;
+  }
+
+  .banner-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .banner-btn {
+    padding: 11px 15px;
+    font-size: 12px;
+  }
+
+  .banner-arrow {
+    width: 33px;
+    height: 33px;
+    font-size: 17px;
+  }
+
+  .banner-prev { left: 8px; }
+  .banner-next { right: 8px; }
+
+  .banner-dots {
+    bottom: 19px;
+  }
+
+  .section {
+    padding: 30px 15px 38px;
+  }
+
+  .section-title {
+    font-size: 19px;
+  }
+
+  .section-icon {
+    width: 37px;
+    height: 37px;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    min-height: 225px;
+    border-radius: 14px;
+  }
+
+  .card-thumb {
+    min-height: 115px;
+    padding: 10px;
+  }
+
+  .card-art-title {
+    font-size: 17px;
+  }
+
+  .card-art-title small {
+    font-size: 10px;
+  }
+
+  .card-body {
+    padding: 12px;
+  }
+
+  .card-body-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .card-title {
+    font-size: 12px;
+  }
+
+  .card-description {
+    font-size: 10px;
+  }
+
+  .card-badge {
+    font-size: 9px;
+  }
+
+  .card-status {
+    font-size: 10px;
+  }
+}
+
+/* SMALL PHONES */
+
+@media (max-width: 380px) {
+  .uni-banner {
+    padding: 8px 10px;
+  }
+
+  .nav-brand {
+    font-size: 15px;
+  }
+
+  .hero-banner,
+  .banner-slide {
+    min-height: 510px;
+  }
+
+  .banner-slide {
+    padding: 28px 18px 60px;
+  }
+
+  .banner-title {
+    font-size: 31px;
+  }
+
+  .banner-btns {
+    gap: 8px;
+  }
+
+  .banner-btn {
+    padding: 10px 11px;
+    font-size: 11px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    min-height: 210px;
+  }
+
+  .card-thumb {
+    min-height: 125px;
+  }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
 </style>
 </head>
+
 <body>
 
-<div class="uni-banner">
+<!-- UNIVERSITY HEADER -->
+
+<header class="uni-banner">
   <img src="braou-banner.png" alt="Dr. B.R. Ambedkar Open University">
-  <div class="nav-brand">AIDeaLab</div>
-</div>
+  <div class="nav-brand">
+    AIDeaLab
+    <span>AI INNOVATION LAB</span>
+  </div>
+</header>
 
-<!-- HERO BANNER -->
-<div class="hero-banner">
+<!-- HERO CAROUSEL -->
 
-  <!-- Slide 1: FourQuad -->
-  <div class="banner-slide active" style="background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 60%, #f0f9ff 100%);">
-    <div class="banner-bg"><img src="fourquad.png" alt="FourQuad"></div>
+<main>
+
+<section class="hero-banner" aria-label="Featured AI applications">
+
+  <!-- FOURQUAD -->
+
+  <article class="banner-slide active" style="background:linear-gradient(135deg,#e0f2fe,#dbeafe 60%,#f0f9ff);">
+    <div class="banner-bg">
+      <img src="fourquad.png" alt="FourQuad application preview">
+    </div>
     <div class="banner-content">
-      <span class="banner-badge"><i class="ti ti-layout-grid" style="font-size:12px;"></i> Planner</span>
-      <div class="banner-title">Four<span>Quad</span></div>
-      <div class="banner-desc">AI-powered four-quadrant planning tool to help educators and learners prioritise tasks and manage academic workloads effectively.</div>
+      <span class="banner-badge"><i class="ti ti-layout-grid"></i> Planner</span>
+      <h1 class="banner-title">Four<span>Quad</span></h1>
+      <p class="banner-desc">
+        AI-powered four-quadrant planning tool to help educators and learners prioritise tasks and manage academic workloads effectively.
+      </p>
       <div class="banner-btns">
-        <a href="https://four-quad.vercel.app/" target="_blank" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
-        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+        <a href="https://four-quad.vercel.app/" target="_blank" rel="noopener noreferrer" class="banner-btn banner-btn-primary">
+          <i class="ti ti-external-link"></i> Launch Tool
+        </a>
       </div>
     </div>
-  </div>
+  </article>
 
-  <!-- Slide 2: ODL Planner -->
-  <div class="banner-slide" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 60%, #dbeafe 100%);">
-    <div class="banner-bg"><img src="oldplanner.png" alt="ODL Planner"></div>
+  <!-- ODL PLANNER -->
+
+  <article class="banner-slide" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe 60%,#dbeafe);">
+    <div class="banner-bg">
+      <img src="oldplanner.png" alt="ODL Planner application preview">
+    </div>
     <div class="banner-content">
-      <span class="banner-badge"><i class="ti ti-calendar-event" style="font-size:12px;"></i> Blueprint</span>
-      <div class="banner-title">ODL <span>Planner</span></div>
-      <div class="banner-desc">A comprehensive blueprint tool for Open and Distance Learning curriculum design. Plan, structure and schedule your ODL programmes with AI-assisted guidance.</div>
+      <span class="banner-badge"><i class="ti ti-calendar-event"></i> Blueprint</span>
+      <h2 class="banner-title">ODL <span>Planner</span></h2>
+      <p class="banner-desc">
+        A comprehensive blueprint tool for Open and Distance Learning curriculum design. Plan, structure and schedule your ODL programmes with AI-assisted guidance.
+      </p>
       <div class="banner-btns">
-        <a href="https://odl-designer.vercel.app/" target="_blank" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
-        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+        <a href="https://odl-designer.vercel.app/" target="_blank" rel="noopener noreferrer" class="banner-btn banner-btn-primary">
+          <i class="ti ti-external-link"></i> Launch Tool
+        </a>
       </div>
     </div>
-  </div>
+  </article>
 
-  <!-- Slide 3: Bodhi Planner -->
-  <div class="banner-slide" style="background: linear-gradient(135deg, #ecfdf5 0%, #e0f2fe 60%, #f0fdf4 100%);">
-    <div class="banner-bg"><img src="bodhiplanner.png" alt="Bodhi Planner"></div>
+  <!-- BODHI PLANNER -->
+
+  <article class="banner-slide" style="background:linear-gradient(135deg,#ecfdf5,#e0f2fe 60%,#f0fdf4);">
+    <div class="banner-bg">
+      <img src="bodhiplanner.png" alt="Bodhi Planner application preview">
+    </div>
     <div class="banner-content">
-      <span class="banner-badge"><i class="ti ti-brain" style="font-size:12px;"></i> Learning</span>
-      <div class="banner-title">Bodhi <span>Planner</span></div>
-      <div class="banner-desc">AI-powered lesson planning for faculty and instructors. Generate structured, pedagogically sound lesson plans aligned with learning outcomes in seconds.</div>
+      <span class="banner-badge"><i class="ti ti-brain"></i> Learning</span>
+      <h2 class="banner-title">Bodhi <span>Planner</span></h2>
+      <p class="banner-desc">
+        AI-powered lesson planning for faculty and instructors. Generate structured, pedagogically sound lesson plans aligned with learning outcomes in seconds.
+      </p>
       <div class="banner-btns">
-        <a href="https://moodle.braou.ac.in/bodhiplanner/" target="_blank" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
-        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+        <a href="https://moodle.braou.ac.in/bodhiplanner/" target="_blank" rel="noopener noreferrer" class="banner-btn banner-btn-primary">
+          <i class="ti ti-external-link"></i> Launch Tool
+        </a>
       </div>
     </div>
-  </div>
+  </article>
 
-  <!-- Slide 4: OER Finder -->
-  <div class="banner-slide" style="background: linear-gradient(135deg, #fefce8 0%, #fef9c3 60%, #fef3c7 100%);">
-    <div class="banner-bg"><img src="oerfinder.png" alt="OER Finder"></div>
+  <!-- OER FINDER -->
+
+  <article class="banner-slide" style="background:linear-gradient(135deg,#fefce8,#fef9c3 60%,#fef3c7);">
+    <div class="banner-bg">
+      <img src="oerfinder.png" alt="OER Finder preview">
+    </div>
     <div class="banner-content">
-      <span class="banner-badge"><i class="ti ti-books" style="font-size:12px;"></i> Resources</span>
-      <div class="banner-title">OER <span>Finder</span></div>
-      <div class="banner-desc">Discover high-quality Open Educational Resources from global repositories. Search, filter and access freely available learning materials curated for your subject.</div>
+      <span class="banner-badge"><i class="ti ti-books"></i> Resources</span>
+      <h2 class="banner-title">OER <span>Finder</span></h2>
+      <p class="banner-desc">
+        Discover high-quality Open Educational Resources from global repositories. Search, filter and access freely available learning materials curated for your subject.
+      </p>
       <div class="banner-btns">
-        <a href="#" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
-        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+        <span class="banner-btn banner-btn-secondary" aria-label="Coming soon">
+          <i class="ti ti-clock"></i> Coming Soon
+        </span>
       </div>
     </div>
-  </div>
+  </article>
 
-  <!-- Slide 5: Language Lab -->
-  <!-- Slide 5: Language Lab -->
-  <div class="banner-slide" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 60%, #e0f2fe 100%);">
-    <div class="banner-bg"><img src="languagelab.png" alt="Language Lab"></div>
+  <!-- LANGUAGE LAB -->
+
+  <article class="banner-slide" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe 60%,#e0f2fe);">
+    <div class="banner-bg">
+      <img src="languagelab.png" alt="Language Lab preview">
+    </div>
     <div class="banner-content">
-      <span class="banner-badge"><i class="ti ti-language" style="font-size:12px;"></i> Language</span>
-      <div class="banner-title">Language <span>Lab</span></div>
-      <div class="banner-desc">Interactive AI-powered language learning environment. Practice reading, writing and communication skills with intelligent feedback designed for distance learners.</div>
+      <span class="banner-badge"><i class="ti ti-language"></i> Language</span>
+      <h2 class="banner-title">Language <span>Lab</span></h2>
+      <p class="banner-desc">
+        Interactive AI-powered language learning environment. Practice reading, writing and communication skills with intelligent feedback designed for distance learners.
+      </p>
       <div class="banner-btns">
-        <a href="https://languagelab.braou.ac.in/" target="_blank" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
-        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+        <a href="https://languagelab.braou.ac.in/" target="_blank" rel="noopener noreferrer" class="banner-btn banner-btn-primary">
+          <i class="ti ti-external-link"></i> Launch Tool
+        </a>
       </div>
     </div>
-  </div>
+  </article>
 
-  <!-- Slide 6: Micro Credential Course Designer -->
-  <div class="banner-slide" style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 60%, #f5f3ff 100%);">
-    <div class="banner-bg"><i class="ti ti-certificate" style="font-size:300px; opacity:0.07; color:#db2777;"></i></div>
+  <!-- MICRO CREDENTIAL -->
+
+  <article class="banner-slide" style="background:linear-gradient(135deg,#fdf2f8,#fce7f3 60%,#f5f3ff);">
+    <div class="banner-bg">
+      <i class="ti ti-certificate"></i>
+    </div>
     <div class="banner-content">
-      <span class="banner-badge"><i class="ti ti-certificate" style="font-size:12px;"></i> Credentials</span>
-      <div class="banner-title">Micro <span>Credential</span></div>
-      <div class="banner-desc">AI-powered course designer for micro-credentials. Structure short, outcome-based courses with badges, assessments and stackable pathways for lifelong learners.</div>
+      <span class="banner-badge"><i class="ti ti-certificate"></i> Credentials</span>
+      <h2 class="banner-title">Micro <span>Credential</span></h2>
+      <p class="banner-desc">
+        AI-powered course designer for micro-credentials. Structure short, outcome-based courses with badges, assessments and stackable pathways for lifelong learners.
+      </p>
       <div class="banner-btns">
-        <a href="https://chatgpt.com/g/g-6a4f47d867948191907e59f0e1a0a06b-micro-credential-course-designer" target="_blank" class="banner-btn banner-btn-primary"><i class="ti ti-player-play"></i> Launch Tool</a>
-        <a href="#" class="banner-btn banner-btn-secondary"><i class="ti ti-info-circle"></i> More Info</a>
+        <a href="https://chatgpt.com/g/g-6a4f47d867948191907e59f0e1a0a06b-micro-credential-course-designer" target="_blank" rel="noopener noreferrer" class="banner-btn banner-btn-primary">
+          <i class="ti ti-external-link"></i> Launch Tool
+        </a>
       </div>
     </div>
+  </article>
+
+  <button class="banner-arrow banner-prev" type="button" aria-label="Previous slide" onclick="changeSlide(-1)">
+    <i class="ti ti-chevron-left"></i>
+  </button>
+
+  <button class="banner-arrow banner-next" type="button" aria-label="Next slide" onclick="changeSlide(1)">
+    <i class="ti ti-chevron-right"></i>
+  </button>
+
+  <div class="banner-dots" aria-label="Choose featured application">
+    <button class="banner-dot active" type="button" aria-label="Slide 1" onclick="goTo(0)"></button>
+    <button class="banner-dot" type="button" aria-label="Slide 2" onclick="goTo(1)"></button>
+    <button class="banner-dot" type="button" aria-label="Slide 3" onclick="goTo(2)"></button>
+    <button class="banner-dot" type="button" aria-label="Slide 4" onclick="goTo(3)"></button>
+    <button class="banner-dot" type="button" aria-label="Slide 5" onclick="goTo(4)"></button>
+    <button class="banner-dot" type="button" aria-label="Slide 6" onclick="goTo(5)"></button>
   </div>
 
-  <div class="banner-bottom-fade"></div>
+</section>
 
-  <div class="banner-dots">
-    <div class="banner-dot active" onclick="goTo(0)"></div>
-    <div class="banner-dot" onclick="goTo(1)"></div>
-    <div class="banner-dot" onclick="goTo(2)"></div>
-    <div class="banner-dot" onclick="goTo(3)"></div>
-    <div class="banner-dot" onclick="goTo(4)"></div>
-    <div class="banner-dot" onclick="goTo(5)"></div>
-  </div>
-</div>
+<!-- ALL APPLICATIONS -->
 
-<!-- CARDS -->
-<div class="section">
+<section class="section" id="tools">
+
   <div class="section-header">
-    <div class="section-title">All Tools</div>
-    <div class="section-line"></div>
+    <div class="section-heading">
+      <div class="section-icon"><i class="ti ti-apps"></i></div>
+      <div>
+        <h2 class="section-title">Explore Our Tools</h2>
+        <p class="section-subtitle">Discover AI-powered tools for education and innovation</p>
+      </div>
+    </div>
   </div>
+
   <div class="cards-grid">
 
-    <div class="card" onclick="goTo(0)">
-      <div class="card-thumb bg-1"><span style="font-size:22px; font-weight:800; color:#1a56db;">FourQuad<br><small style="font-weight:500; font-size:13px; color:#64748b;">AI Planning Tool</small></span></div>
+    <!-- FOURQUAD -->
+
+    <a class="card" href="https://four-quad.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Open FourQuad AI Planning Tool">
+      <div class="card-thumb bg-1">
+        <div class="card-art-title" style="color:#1a56db;">
+          FourQuad
+          <small>AI Planning Tool</small>
+        </div>
+      </div>
       <div class="card-body">
-        <span class="card-badge" style="color:#1a56db; border-color:#1a56db;">Planner</span>
-        <div class="coming-soon" style="color:#16a34a;">● Live</div>
+        <div class="card-body-top">
+          <span class="card-title">FourQuad</span>
+          <span class="card-badge" style="color:#1a56db;border-color:#1a56db;">Planner</span>
+        </div>
+        <p class="card-description">AI-powered four-quadrant task planning and productivity management.</p>
+        <div class="card-status"><span class="status-dot"></span> Live Application</div>
+      </div>
+    </a>
+
+    <!-- ODL DESIGNER -->
+
+    <a class="card" href="https://odl-designer.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Open ODL Designer">
+      <div class="card-thumb bg-2">
+        <div class="card-art-title" style="color:#0ea5e9;">
+          ODL Designer
+          <small>Course Blueprint</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-body-top">
+          <span class="card-title">ODL Planner</span>
+          <span class="card-badge" style="color:#0ea5e9;border-color:#0ea5e9;">Blueprint</span>
+        </div>
+        <p class="card-description">Design and structure Open and Distance Learning programmes.</p>
+        <div class="card-status"><span class="status-dot"></span> Live Application</div>
+      </div>
+    </a>
+
+    <!-- BODHI PLANNER -->
+
+    <a class="card" href="https://moodle.braou.ac.in/bodhiplanner/" target="_blank" rel="noopener noreferrer" aria-label="Open Bodhi Planner">
+      <div class="card-thumb bg-3">
+        <div class="card-art-title" style="color:#059669;">
+          Bodhi Planner
+          <small>Lesson Design</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-body-top">
+          <span class="card-title">Bodhi Planner</span>
+          <span class="card-badge" style="color:#059669;border-color:#059669;">Learning</span>
+        </div>
+        <p class="card-description">Generate AI-assisted lesson plans aligned with learning outcomes.</p>
+        <div class="card-status"><span class="status-dot"></span> Live Application</div>
+      </div>
+    </a>
+
+    <!-- OER FINDER -->
+
+    <div class="card card-disabled" aria-disabled="true">
+      <div class="card-thumb bg-4">
+        <div class="card-art-title" style="color:#d97706;">
+          OER Finder
+          <small>Open Resources</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-body-top">
+          <span class="card-title">OER Finder</span>
+          <span class="card-badge" style="color:#d97706;border-color:#d97706;">Resources</span>
+        </div>
+        <p class="card-description">Discover open educational resources from global repositories.</p>
+        <div class="card-status soon"><span class="status-dot"></span> Coming Soon</div>
       </div>
     </div>
 
-    <div class="card" onclick="goTo(1)">
-      <div class="card-thumb bg-2"><span style="font-size:22px; font-weight:800; color:#0ea5e9;">ODL Designer<br><small style="font-weight:500; font-size:13px; color:#64748b;">Course Blueprint</small></span></div>
-      <div class="card-body">
-        <span class="card-badge" style="color:#0ea5e9; border-color:#0ea5e9;">Blueprint</span>
-        <div class="coming-soon" style="color:#16a34a;">● Live</div>
-      </div>
-    </div>
+    <!-- LANGUAGE LAB -->
 
-    <div class="card" onclick="goTo(2)">
-      <div class="card-thumb bg-3"><span style="font-size:22px; font-weight:800; color:#059669;">Bodhi Planner<br><small style="font-weight:500; font-size:13px; color:#64748b;">Lesson Design</small></span></div>
-      <div class="card-body">
-        <span class="card-badge" style="color:#059669; border-color:#059669;">Learning</span>
-        <div class="coming-soon" style="color:#16a34a;">● Live</div>
+    <a class="card" href="https://languagelab.braou.ac.in/" target="_blank" rel="noopener noreferrer" aria-label="Open Language Lab">
+      <div class="card-thumb bg-5">
+        <div class="card-art-title" style="color:#7c3aed;">
+          Language Lab
+          <small>Interactive Learning</small>
+        </div>
       </div>
-    </div>
+      <div class="card-body">
+        <div class="card-body-top">
+          <span class="card-title">Language Lab</span>
+          <span class="card-badge" style="color:#7c3aed;border-color:#7c3aed;">Language</span>
+        </div>
+        <p class="card-description">Practice reading, writing and communication with AI-powered feedback.</p>
+        <div class="card-status"><span class="status-dot"></span> Live Application</div>
+      </div>
+    </a>
 
-    <div class="card" onclick="goTo(3)">
-      <div class="card-thumb bg-4"><span style="font-size:22px; font-weight:800; color:#d97706;">OER Finder<br><small style="font-weight:500; font-size:13px; color:#64748b;">Open Resources</small></span></div>
-      <div class="card-body">
-        <span class="card-badge" style="color:#d97706; border-color:#d97706;">Resources</span>
-        <div class="coming-soon">Coming soon</div>
-      </div>
-    </div>
+    <!-- MICRO CREDENTIAL -->
 
-    <div class="card" onclick="goTo(4)">
-      <div class="card-thumb bg-5"><span style="font-size:22px; font-weight:800; color:#7c3aed;">Language Lab<br><small style="font-weight:500; font-size:13px; color:#64748b;">Interactive Learning</small></span></div>
-      <div class="card-body">
-        <span class="card-badge" style="color:#7c3aed; border-color:#7c3aed;">Language</span>
-        <div class="coming-soon" style="color:#16a34a;">● Live</div>
+    <a class="card" href="https://chatgpt.com/g/g-6a4f47d867948191907e59f0e1a0a06b-micro-credential-course-designer" target="_blank" rel="noopener noreferrer" aria-label="Open Micro Credential Course Designer">
+      <div class="card-thumb bg-6">
+        <div class="card-art-title" style="color:#db2777;">
+          Micro Credential
+          <small>Course Designer</small>
+        </div>
       </div>
-    </div>
-
-    <div class="card" onclick="goTo(5)">
-      <div class="card-thumb" style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);"><span style="font-size:22px; font-weight:800; color:#db2777;">Micro Credential<br><small style="font-weight:500; font-size:13px; color:#64748b;">Course Designer</small></span></div>
       <div class="card-body">
-        <span class="card-badge" style="color:#db2777; border-color:#db2777;">Credentials</span>
-        <div class="coming-soon" style="color:#16a34a;">● Live</div>
+        <div class="card-body-top">
+          <span class="card-title">Micro Credential</span>
+          <span class="card-badge" style="color:#db2777;border-color:#db2777;">Credentials</span>
+        </div>
+        <p class="card-description">Create outcome-based micro-credential courses and learning pathways.</p>
+        <div class="card-status"><span class="status-dot"></span> Live Application</div>
       </div>
-    </div>
+    </a>
 
   </div>
-</div>
+</section>
 
-<div class="divider"></div>
-<div class="footer">© 2026 <span>Dr. B.R. Ambedkar Open University</span> · AIDeaLab</div>
+</main>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+  © 2026 <strong>Dr. B.R. Ambedkar Open University</strong> · AIDeaLab
+  <br>
+  AI Innovation for Teaching, Learning and Research
+</footer>
 
 <script>
-  let current = 0;
-  const slides = document.querySelectorAll('.banner-slide');
-  const dots = document.querySelectorAll('.banner-dot');
-  let timer = setInterval(() => goTo((current + 1) % slides.length), 5000);
+(function () {
+  const slides = Array.from(document.querySelectorAll('.banner-slide'));
+  const dots = Array.from(document.querySelectorAll('.banner-dot'));
+  const carousel = document.querySelector('.hero-banner');
 
-  function goTo(n) {
-    slides[current].classList.remove('active');
-    dots[current].classList.remove('active');
-    current = n;
-    slides[current].classList.add('active');
-    dots[current].classList.add('active');
-    clearInterval(timer);
-    timer = setInterval(() => goTo((current + 1) % slides.length), 5000);
+  let current = 0;
+  let timer = null;
+  const interval = 5000;
+
+  function showSlide(index) {
+    if (!slides.length) return;
+
+    current = (index + slides.length) % slides.length;
+
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === current);
+      slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+    });
+
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === current);
+      dot.setAttribute('aria-current', i === current ? 'true' : 'false');
+    });
   }
+
+  function goTo(index) {
+    showSlide(index);
+    restartTimer();
+  }
+
+  function changeSlide(direction) {
+    goTo(current + direction);
+  }
+
+  function restartTimer() {
+    if (timer) clearInterval(timer);
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      timer = setInterval(() => showSlide(current + 1), interval);
+    }
+  }
+
+  window.goTo = goTo;
+  window.changeSlide = changeSlide;
+
+  // Pause automatic rotation while the visitor interacts.
+  carousel.addEventListener('mouseenter', () => {
+    if (timer) clearInterval(timer);
+  });
+
+  carousel.addEventListener('mouseleave', restartTimer);
+  carousel.addEventListener('focusin', () => {
+    if (timer) clearInterval(timer);
+  });
+  carousel.addEventListener('focusout', restartTimer);
+
+  // Swipe navigation for touch screens.
+  let touchStartX = 0;
+
+  carousel.addEventListener('touchstart', event => {
+    touchStartX = event.changedTouches[0].screenX;
+  }, { passive: true });
+
+  carousel.addEventListener('touchend', event => {
+    const difference = event.changedTouches[0].screenX - touchStartX;
+
+    if (Math.abs(difference) > 55) {
+      changeSlide(difference < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+
+  showSlide(0);
+  restartTimer();
+})();
 </script>
+
 </body>
 </html>
