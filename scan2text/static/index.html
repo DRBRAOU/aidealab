@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan2Text — scanned books to accessible EPUB & Word</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#books">Skip to your books</a>
+
+<header>
+  <div>
+    <h1>📘 Scan<span>2</span>Text</h1>
+    <p class="tag">Scanned books → accessible EPUB &amp; Word. Runs 100% on this computer.</p>
+  </div>
+  <div class="user-box">
+    <div id="ollama-pill" class="pill" role="status"><span class="dot" aria-hidden="true"></span><span>Checking Ollama…</span></div>
+    <span class="who" id="who"></span>
+    <a class="navlink" id="admin-link" href="/admin" hidden>Admin</a>
+    <button type="button" class="navlink" id="pw-open">Change password</button>
+    <button type="button" class="navlink" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <section class="card" aria-labelledby="new-h">
+    <h2 id="new-h">New conversion</h2>
+    <div id="setup-banner" hidden></div>
+
+    <form id="form" novalidate>
+      <label class="drop" id="drop" for="file">
+        <span aria-hidden="true" style="font-size:2rem">📄</span>
+        <strong>Choose scanned PDFs or images</strong>
+        <span class="hint">or drag and drop them here</span>
+        <input id="file" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.webp">
+      </label>
+      <ul class="files" id="file-list" aria-label="Selected files"></ul>
+
+      <div id="meta-fields">
+        <label for="title">Book title <span class="hint" id="title-hint">Leave blank to use the file name</span></label>
+        <input id="title" type="text" autocomplete="off">
+        <label for="author">Author <span class="hint">Optional</span></label>
+        <input id="author" type="text" autocomplete="off">
+      </div>
+
+      <label for="model">OCR model</label>
+      <select id="model"></select>
+
+      <div class="row2">
+        <div>
+          <label for="lang">Book language</label>
+          <select id="lang"></select>
+        </div>
+        <div>
+          <label for="dpi">Scan quality</label>
+          <select id="dpi">
+            <option value="200">Fast</option>
+            <option value="300" selected>Balanced</option>
+            <option value="400">Fine print</option>
+          </select>
+        </div>
+      </div>
+      <span class="hint" style="margin-top:.4rem">Language tells screen readers which voice to use. Use "Fine print" for small text.</span>
+
+      <button class="primary go" id="go" type="submit" disabled>Convert</button>
+    </form>
+  </section>
+
+  <section aria-labelledby="books-h">
+    <h2 id="books-h" tabindex="-1">Your books</h2>
+    <ul class="jobs" id="books" aria-live="off"></ul>
+  </section>
+</main>
+
+<footer>
+  Pages already read are remembered, so a stopped or interrupted book resumes where it left off.
+  OCR is never perfect — use <strong>Proofread</strong> to fix mistakes before sharing.
+  <br>Developed by Ms Sushumna Rao for BRAOU Aidea Lab.
+</footer>
+
+<div id="announcer" class="sr-only" aria-live="polite" role="status"></div>
+
+<dialog id="editor" aria-labelledby="editor-h">
+  <h2 id="editor-h">Proofread</h2>
+  <p class="hint" style="margin-top:-.6rem">Fix OCR mistakes here. <code>#</code> = chapter, <code>##</code> = section, <code>**bold**</code>, <code>*italic*</code>. Saving rebuilds the EPUB and Word files.</p>
+  <label for="md" class="sr-only">Book text in Markdown</label>
+  <textarea id="md" spellcheck="true"></textarea>
+  <div class="dialog-foot">
+    <span id="editor-status" class="hint" role="status"></span>
+    <div style="display:flex;gap:.5rem">
+      <button type="button" id="editor-cancel">Close</button>
+      <button type="button" class="primary" id="editor-save">Save &amp; rebuild</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="pw-dialog" aria-labelledby="pw-h" style="width:min(440px,94vw)">
+  <form id="pw-form" novalidate>
+    <h2 id="pw-h">Change password</h2>
+    <p class="hint" id="pw-why" hidden>You signed in with a temporary password. Please choose your own to continue.</p>
+    <label for="pw-current">Current password</label>
+    <input id="pw-current" type="password" autocomplete="current-password" required>
+    <label for="pw-new">New password <span class="hint">At least 8 characters, letters and numbers</span></label>
+    <input id="pw-new" type="password" autocomplete="new-password" required>
+    <label for="pw-new2">Type the new password again</label>
+    <input id="pw-new2" type="password" autocomplete="new-password" required>
+    <div id="pw-msg" role="alert"></div>
+    <div class="dialog-foot">
+      <span></span>
+      <div style="display:flex;gap:.5rem">
+        <button type="button" id="pw-cancel">Cancel</button>
+        <button type="submit" class="primary">Save password</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+// any "please sign in" answer sends the browser to the sign-in page
+const _fetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const r = await _fetch(...args);
+  if (r.status === 401 && !String(args[0]).startsWith("/api/auth/")) location.href = "/login";
+  return r;
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const announce = msg => { $("#announcer").textContent = ""; setTimeout(() => $("#announcer").textContent = msg, 50); };
+let status = null, selected = [], lastStates = {}, pollTimer = null, editingId = null;
+
+function fmtTime(s) {
+  if (s == null) return "";
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60), h = Math.floor(m / 60);
+  return h ? `${h}h ${m % 60}m` : `${m}m ${s % 60}s`;
+}
+function fmtSize(b) { return b > 1e6 ? (b / 1e6).toFixed(1) + " MB" : Math.ceil(b / 1e3) + " KB"; }
+
+// ---------- status / setup ----------
+async function loadStatus() {
+  try { status = await (await fetch("/api/status")).json(); }
+  catch { status = { ollama: false, models: [], languages: [] }; }
+  const pill = $("#ollama-pill");
+  pill.className = "pill " + (status.ollama ? "ok" : "bad");
+  pill.lastElementChild.textContent = status.ollama ? "Ollama connected" : "Ollama not running";
+
+  const modelSel = $("#model"), prev = modelSel.value;
+  modelSel.innerHTML = status.models.map(m =>
+    `<option value="${m.id}">${esc(m.label)}${m.installed ? "" : " (not downloaded)"}</option>`).join("");
+  const firstInstalled = status.models.find(m => m.installed);
+  modelSel.value = prev || (firstInstalled ? firstInstalled.id : status.models[0]?.id);
+
+  if (!$("#lang").options.length)
+    $("#lang").innerHTML = status.languages.map(l => `<option value="${l.id}">${esc(l.label)}</option>`).join("");
+  updateSetup();
+}
+
+function updateSetup() {
+  const b = $("#setup-banner"), m = status?.models.find(x => x.id === $("#model").value);
+  let html = "", cls = "";
+  if (!status?.ollama) {
+    cls = "err";
+    html = `<strong>Ollama isn't running.</strong> Install it from <a href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com</a>, start it, then <button type="button" class="link" id="recheck">check again</button>.`;
+  } else if (m && !m.installed) {
+    cls = "warn";
+    html = `<strong>This model isn't downloaded yet.</strong> Open a terminal and run:<br><code>ollama pull ${esc(m.id)}</code><br><button type="button" class="link" id="recheck">I've done it — check again</button>`;
+  }
+  b.hidden = !html; b.className = "banner " + cls; b.innerHTML = html;
+  $("#recheck")?.addEventListener("click", loadStatus);
+  $("#go").disabled = !(selected.length && status?.ollama && m?.installed);
+}
+$("#model").addEventListener("change", updateSetup);
+
+// ---------- file picking ----------
+const OK_EXT = /\.(pdf|png|jpe?g|tiff?|webp)$/i;
+function setFiles(list) {
+  selected = [...list].filter(f => OK_EXT.test(f.name));
+  $("#file-list").innerHTML = selected.map((f, i) =>
+    `<li><span>${esc(f.name)} <span class="hint" style="display:inline">${fmtSize(f.size)}</span></span>
+     <button type="button" class="link" data-rm="${i}" aria-label="Remove ${esc(f.name)}">Remove</button></li>`).join("");
+  const multi = selected.length > 1;
+  $("#title").disabled = multi;
+  $("#title-hint").textContent = multi ? "Each book uses its file name" : "Leave blank to use the file name";
+  if (multi) $("#title").value = "";
+  if ([...list].length > selected.length) announce("Some files were skipped: only PDF and image files are supported.");
+  updateSetup();
+}
+$("#file").addEventListener("change", e => setFiles(e.target.files));
+$("#file-list").addEventListener("click", e => {
+  const i = e.target.dataset.rm; if (i == null) return;
+  selected.splice(+i, 1); setFiles(selected);
+});
+const drop = $("#drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => setFiles(e.dataTransfer.files));
+
+// ---------- submit ----------
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const go = $("#go"); go.disabled = true; go.textContent = "Uploading…";
+  let n = 0;
+  for (const f of selected) {
+    const fd = new FormData();
+    fd.append("file", f);
+    fd.append("model", $("#model").value);
+    fd.append("lang", $("#lang").value);
+    fd.append("dpi", $("#dpi").value);
+    fd.append("title", selected.length === 1 ? $("#title").value : "");
+    fd.append("author", $("#author").value);
+    const r = await fetch("/api/jobs", { method: "POST", body: fd });
+    if (r.ok) n++; else announce(`${f.name}: ${(await r.json()).detail || "upload failed"}`);
+  }
+  go.textContent = "Convert";
+  setFiles([]); $("#file").value = ""; $("#title").value = "";
+  if (n) announce(`${n} book${n > 1 ? "s" : ""} added to the queue.`);
+  refresh();
+});
+
+// ---------- job list ----------
+const STATE_LABEL = { queued: "Waiting", running: "Converting", done: "Ready", error: "Failed", cancelled: "Stopped", interrupted: "Interrupted" };
+
+function jobHTML(j) {
+  const label = STATE_LABEL[j.state] || j.state;
+  const model = status?.models.find(m => m.id === j.model)?.id || j.model;
+  const lang = status?.languages.find(l => l.id === j.lang)?.label || j.lang;
+  let body = "";
+  if (j.state === "running" || j.state === "queued") {
+    const pct = j.total ? Math.round(j.page / j.total * 100) : 0;
+    const txt = j.state === "queued" ? "Waiting for the current book to finish…"
+      : j.total ? `Page ${j.page} of ${j.total}${j.eta != null && j.page ? ` · about ${fmtTime(j.eta)} left` : ""}` : "Starting…";
+    body = `<progress max="100" value="${pct}" aria-label="Progress for ${esc(j.title)}">${pct}%</progress>
+            <div class="progress-text">${txt}</div>`;
+  }
+  if (j.error) body += `<div class="error-text">${esc(j.error)}</div>`;
+  if (j.state === "done" && j.warnings) body += `<div class="error-text">${j.warnings} page(s) could not be read — check them in Proofread.</div>`;
+
+  const a = [];
+  if (j.state === "done") {
+    a.push(`<a class="btn" href="/api/jobs/${j.id}/download/epub">Download EPUB<span class="sr-only"> for ${esc(j.title)}</span></a>`);
+    a.push(`<a class="btn" href="/api/jobs/${j.id}/download/docx">Download Word<span class="sr-only"> for ${esc(j.title)}</span></a>`);
+    a.push(`<button type="button" data-act="edit" data-id="${j.id}">Proofread<span class="sr-only"> ${esc(j.title)}</span></button>`);
+    a.push(`<a class="btn secondary" href="/api/jobs/${j.id}/download/md">Markdown</a>`);
+  }
+  if (j.state === "running" || j.state === "queued")
+    a.push(`<button type="button" data-act="cancel" data-id="${j.id}">Stop</button>`);
+  if (["error", "cancelled", "interrupted"].includes(j.state))
+    a.push(`<button type="button" class="primary" data-act="retry" data-id="${j.id}">Resume</button>`);
+  if (j.state !== "running")
+    a.push(`<button type="button" data-act="delete" data-id="${j.id}">Delete<span class="sr-only"> ${esc(j.title)}</span></button>`);
+
+  return `<li class="job" id="job-${j.id}">
+    <div class="job-head">
+      <div><h3>${esc(j.title)}</h3>
+        <div class="meta">${esc(j.filename)}${j.author ? " · " + esc(j.author) : ""} · ${esc(model)} · ${esc(lang)}${me?.role === "admin" && j.owner && j.owner !== me.email ? ` · <strong>by ${esc(j.owner)}</strong>` : ""}</div></div>
+      <span class="state ${j.state}">${label}</span>
+    </div>${body}<div class="actions">${a.join("")}</div></li>`;
+}
+
+async function refresh() {
+  let list = [];
+  try { list = await (await fetch("/api/jobs")).json(); } catch { }
+  const focusedId = document.activeElement?.dataset?.id, focusedAct = document.activeElement?.dataset?.act;
+  $("#books").innerHTML = list.length ? list.map(jobHTML).join("")
+    : `<li class="empty">No books yet. Choose a scanned PDF on the left to begin.</li>`;
+  if (focusedId) document.querySelector(`[data-id="${focusedId}"][data-act="${focusedAct}"]`)?.focus();
+
+  for (const j of list) {  // announce state changes for screen-reader users
+    const prev = lastStates[j.id];
+    if (prev && prev !== j.state) {
+      if (j.state === "done") announce(`${j.title} is ready. EPUB and Word downloads are available.`);
+      else if (j.state === "error") announce(`${j.title} failed: ${j.error}`);
+      else if (j.state === "running") announce(`Converting ${j.title}.`);
+    }
+    lastStates[j.id] = j.state;
+  }
+  clearTimeout(pollTimer);
+  const busy = list.some(j => j.state === "running" || j.state === "queued");
+  pollTimer = setTimeout(refresh, busy ? 1500 : 8000);
+}
+
+$("#books").addEventListener("click", async e => {
+  const btn = e.target.closest("button[data-act]"); if (!btn) return;
+  const { act, id } = btn.dataset;
+  if (act === "edit") return openEditor(id);
+  if (act === "delete" && !confirm("Delete this book and its files?")) return;
+  const method = act === "delete" ? "DELETE" : "POST";
+  const url = act === "delete" ? `/api/jobs/${id}` : `/api/jobs/${id}/${act}`;
+  const r = await fetch(url, { method });
+  if (!r.ok) announce((await r.json()).detail || "Something went wrong");
+  else announce({ delete: "Book deleted.", cancel: "Stopping…", retry: "Resuming." }[act]);
+  if (act === "delete") $("#books-h").focus();
+  refresh();
+});
+
+// ---------- proofread editor ----------
+const dlg = $("#editor");
+async function openEditor(id) {
+  editingId = id;
+  $("#editor-status").textContent = "Loading…";
+  $("#md").value = "";
+  dlg.showModal();
+  const r = await fetch(`/api/jobs/${id}/markdown`);
+  $("#md").value = r.ok ? (await r.json()).markdown : "";
+  $("#editor-status").textContent = "";
+  $("#md").focus(); $("#md").setSelectionRange(0, 0); $("#md").scrollTop = 0;
+}
+$("#editor-cancel").addEventListener("click", () => dlg.close());
+$("#editor-save").addEventListener("click", async () => {
+  $("#editor-status").textContent = "Rebuilding EPUB and Word…";
+  const r = await fetch(`/api/jobs/${editingId}/markdown`, {
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ markdown: $("#md").value }) });
+  $("#editor-status").textContent = r.ok ? "Saved. Downloads now include your fixes." : "Save failed.";
+  if (r.ok) announce("Saved. EPUB and Word files rebuilt.");
+});
+
+// ---------- signed-in user ----------
+let me = null;
+async function loadMe() {
+  const s = await (await fetch("/api/auth/state")).json();
+  if (!s.user) { location.href = s.setup_needed ? "/setup" : "/login"; return false; }
+  me = s.user;
+  $("#who").innerHTML = `Signed in as <strong>${esc(me.name)}</strong>`;
+  $("#admin-link").hidden = me.role !== "admin";
+  if (me.must_change) openPw(true);
+  return true;
+}
+const pwDlg = $("#pw-dialog");
+function openPw(forced) {
+  $("#pw-form").reset(); $("#pw-msg").innerHTML = "";
+  $("#pw-why").hidden = !forced; $("#pw-cancel").hidden = forced;
+  pwDlg.dataset.forced = forced ? "1" : "";
+  pwDlg.showModal(); $("#pw-current").focus();
+}
+pwDlg.addEventListener("cancel", e => { if (pwDlg.dataset.forced) e.preventDefault(); });
+$("#pw-open").addEventListener("click", () => openPw(false));
+$("#pw-cancel").addEventListener("click", () => pwDlg.close());
+$("#pw-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("#pw-msg");
+  if ($("#pw-new").value !== $("#pw-new2").value) {
+    msg.innerHTML = `<div class="form-error">The two new passwords don't match.</div>`; return;
+  }
+  const r = await fetch("/api/auth/password", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ current: $("#pw-current").value, new: $("#pw-new").value }) });
+  if (!r.ok) { msg.innerHTML = `<div class="form-error">${esc((await r.json()).detail)}</div>`; return; }
+  pwDlg.dataset.forced = ""; pwDlg.close(); announce("Password changed.");
+});
+$("#logout").addEventListener("click", async () => {
+  await fetch("/api/auth/logout", { method: "POST" }); location.href = "/login";
+});
+
+loadMe().then(ok => { if (ok) { loadStatus().then(refresh); setInterval(loadStatus, 15000); } });
+</script>
+</body>
+</html>

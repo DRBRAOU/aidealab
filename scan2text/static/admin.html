@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Scan2Text</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#panel">Skip to content</a>
+<header>
+  <div>
+    <h1>📘 Scan<span>2</span>Text <span style="color:var(--muted);font-weight:400">· Admin</span></h1>
+    <p class="tag">Manage who can sign in, and see what everyone has done.</p>
+  </div>
+  <div class="user-box">
+    <span class="who" id="who"></span>
+    <a class="navlink" href="/">← Back to books</a>
+    <button type="button" class="navlink" id="logout">Sign out</button>
+  </div>
+</header>
+
+<div class="wide">
+  <div class="tabs" role="tablist" aria-label="Admin sections">
+    <button role="tab" id="tab-users" aria-controls="panel" aria-selected="true">Users</button>
+    <button role="tab" id="tab-logs" aria-controls="panel" aria-selected="false">Activity log</button>
+  </div>
+
+  <div id="panel" role="tabpanel" tabindex="-1">
+    <!-- USERS -->
+    <section id="users-view" aria-labelledby="users-h">
+      <h2 id="users-h" class="sr-only">Users</h2>
+      <form id="add-form" class="card toolbar" novalidate style="background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem">
+        <div style="flex:2">
+          <label for="new-email">E-mail <span class="hint" id="domain-hint">@braou.ac.in only</span></label>
+          <input id="new-email" type="email" required>
+        </div>
+        <div style="flex:2">
+          <label for="new-name">Name</label>
+          <input id="new-name" type="text">
+        </div>
+        <div style="flex:1">
+          <label for="new-role">Role</label>
+          <select id="new-role"><option value="user">User</option><option value="admin">Admin</option></select>
+        </div>
+        <div style="min-width:auto"><button class="primary" type="submit">Add user</button></div>
+      </form>
+      <div id="add-msg" role="alert" style="margin:-.5rem 0 1rem"></div>
+      <div class="table-scroll">
+        <table class="grid" aria-describedby="users-h">
+          <thead><tr><th>Name</th><th>E-mail</th><th>Role</th><th>Status</th><th>Last sign-in</th><th>Added by</th><th><span class="sr-only">Actions</span></th></tr></thead>
+          <tbody id="users"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- LOGS -->
+    <section id="logs-view" aria-labelledby="logs-h" hidden>
+      <h2 id="logs-h" class="sr-only">Activity log</h2>
+      <div class="toolbar">
+        <div><label for="f-user">User</label><select id="f-user"><option value="">Everyone</option></select></div>
+        <div><label for="f-action">Action</label><select id="f-action"><option value="">All actions</option></select></div>
+        <button type="button" id="f-refresh">Refresh</button>
+        <a class="navlink" id="csv" href="/api/admin/logs.csv" style="padding:.55rem 1rem">Download CSV</a>
+      </div>
+      <div class="table-scroll">
+        <table class="grid" aria-describedby="logs-h">
+          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></tr></thead>
+          <tbody id="logs"></tbody>
+        </table>
+      </div>
+      <p class="hint" id="logs-count" style="margin-top:.6rem"></p>
+    </section>
+  </div>
+</div>
+
+<dialog id="pw-show" aria-labelledby="pw-show-h" style="width:min(460px,94vw)">
+  <h2 id="pw-show-h">Temporary password</h2>
+  <p id="pw-show-for"></p>
+  <div class="temp-pw" id="pw-show-value"></div>
+  <p class="hint">Share it with them privately (in person or by phone). It is shown only once. They will be asked to choose their own password when they first sign in.</p>
+  <div class="dialog-foot"><span id="copy-msg" class="hint" role="status"></span>
+    <div style="display:flex;gap:.5rem"><button type="button" id="pw-copy">Copy</button><button type="button" class="primary" id="pw-done">Done</button></div>
+  </div>
+</dialog>
+
+<div id="announcer" class="sr-only" aria-live="polite" role="status"></div>
+
+<script>
+const _fetch = window.fetch.bind(window);
+window.fetch = async (...a) => { const r = await _fetch(...a); if (r.status === 401) location.href = "/login"; if (r.status === 403) location.href = "/"; return r; };
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const announce = m => { $("#announcer").textContent = ""; setTimeout(() => $("#announcer").textContent = m, 50); };
+const when = ts => ts ? new Date(ts * 1000).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "—";
+const json = (method, body) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+let me = null, users = [];
+
+const ACTION_LABEL = {
+  login: "Signed in", login_failed: "Sign-in failed", logout: "Signed out", password_changed: "Changed password",
+  setup_admin_created: "First admin created", user_added: "Added user", user_updated: "Updated user",
+  password_reset: "Reset password", upload: "Uploaded book", convert_done: "Conversion finished",
+  convert_failed: "Conversion failed", download: "Downloaded", proofread_saved: "Saved proofreading",
+  delete: "Deleted book", stop: "Stopped conversion", resume: "Resumed conversion", logs_exported: "Exported log",
+};
+
+// ---------- tabs ----------
+function show(tab) {
+  const users_ = tab === "users";
+  $("#tab-users").setAttribute("aria-selected", users_); $("#tab-logs").setAttribute("aria-selected", !users_);
+  $("#users-view").hidden = !users_; $("#logs-view").hidden = users_;
+  if (!users_) loadLogs();
+}
+$("#tab-users").addEventListener("click", () => show("users"));
+$("#tab-logs").addEventListener("click", () => show("logs"));
+document.querySelector("[role=tablist]").addEventListener("keydown", e => {
+  if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+  const next = document.activeElement.id === "tab-users" ? "logs" : "users";
+  show(next); $("#tab-" + next).focus();
+});
+
+// ---------- users ----------
+async function loadUsers() {
+  users = await (await fetch("/api/admin/users")).json();
+  $("#users").innerHTML = users.map(u => {
+    const self = u.id === me.id;
+    return `<tr>
+      <td>${esc(u.name)}${self ? ' <span class="hint" style="display:inline">(you)</span>' : ""}</td>
+      <td>${esc(u.email)}</td>
+      <td><span class="badge ${u.role === "admin" ? "admin" : ""}">${u.role === "admin" ? "Admin" : "User"}</span></td>
+      <td>${u.active ? (u.must_change ? "Active · temp password" : "Active") : '<span class="badge off">Disabled</span>'}</td>
+      <td>${when(u.last_login)}</td>
+      <td>${esc(u.created_by || "—")}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-sm" data-act="role" data-id="${u.id}">${u.role === "admin" ? "Make user" : "Make admin"}<span class="sr-only"> ${esc(u.email)}</span></button>
+        <button class="btn-sm" data-act="reset" data-id="${u.id}">Reset password<span class="sr-only"> for ${esc(u.email)}</span></button>
+        ${self ? "" : `<button class="btn-sm" data-act="active" data-id="${u.id}">${u.active ? "Disable" : "Enable"}<span class="sr-only"> ${esc(u.email)}</span></button>`}
+      </td></tr>`;
+  }).join("");
+  $("#f-user").innerHTML = `<option value="">Everyone</option>` + users.map(u => `<option value="${esc(u.email)}">${esc(u.name)} (${esc(u.email)})</option>`).join("");
+}
+
+function showTempPw(email, pw) {
+  $("#pw-show-for").innerHTML = `For <strong>${esc(email)}</strong>:`;
+  $("#pw-show-value").textContent = pw; $("#copy-msg").textContent = "";
+  $("#pw-show").showModal();
+}
+$("#pw-copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("#pw-show-value").textContent); $("#copy-msg").textContent = "Copied."; }
+  catch { $("#copy-msg").textContent = "Select the password and copy it."; }
+});
+$("#pw-done").addEventListener("click", () => $("#pw-show").close());
+
+$("#add-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const r = await fetch("/api/admin/users", json("POST", { email: $("#new-email").value, name: $("#new-name").value, role: $("#new-role").value }));
+  const d = await r.json();
+  if (!r.ok) { $("#add-msg").innerHTML = `<div class="form-error">${esc(d.detail)}</div>`; return; }
+  $("#add-msg").innerHTML = ""; $("#add-form").reset();
+  await loadUsers(); showTempPw(d.user.email, d.temp_password);
+});
+
+$("#users").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const u = users.find(x => x.id === +b.dataset.id);
+  let r;
+  if (b.dataset.act === "reset") {
+    if (!confirm(`Reset the password for ${u.email}? They will be signed out everywhere.`)) return;
+    r = await fetch(`/api/admin/users/${u.id}/reset`, { method: "POST" });
+    if (r.ok) { showTempPw(u.email, (await r.json()).temp_password); loadUsers(); return; }
+  } else if (b.dataset.act === "role") {
+    r = await fetch(`/api/admin/users/${u.id}`, json("PATCH", { role: u.role === "admin" ? "user" : "admin" }));
+  } else {
+    if (u.active && !confirm(`Disable ${u.email}? They will be signed out and can't sign in until re-enabled.`)) return;
+    r = await fetch(`/api/admin/users/${u.id}`, json("PATCH", { active: !u.active }));
+  }
+  if (!r.ok) { $("#add-msg").innerHTML = `<div class="form-error">${esc((await r.json()).detail)}</div>`; return; }
+  announce("User updated."); loadUsers();
+});
+
+// ---------- logs ----------
+async function loadLogs() {
+  const q = new URLSearchParams({ email: $("#f-user").value, action: $("#f-action").value, limit: 300 });
+  const d = await (await fetch("/api/admin/logs?" + q)).json();
+  const cur = $("#f-action").value;
+  $("#f-action").innerHTML = `<option value="">All actions</option>` + d.actions.map(a => `<option value="${a}">${esc(ACTION_LABEL[a] || a)}</option>`).join("");
+  $("#f-action").value = cur;
+  $("#csv").href = "/api/admin/logs.csv?" + new URLSearchParams({ email: $("#f-user").value, action: cur });
+  $("#logs").innerHTML = d.logs.length ? d.logs.map(l => `<tr>
+      <td style="white-space:nowrap">${when(l.ts)}</td><td>${esc(l.email || "—")}</td>
+      <td>${l.action.includes("fail") ? `<span class="badge off">${esc(ACTION_LABEL[l.action] || l.action)}</span>` : esc(ACTION_LABEL[l.action] || l.action)}</td>
+      <td>${esc(l.detail || "")}</td><td>${esc(l.ip || "")}</td></tr>`).join("")
+    : `<tr><td colspan="5" class="hint">No activity matches.</td></tr>`;
+  $("#logs-count").textContent = `Showing the latest ${d.logs.length} entries. Download CSV for up to 5,000.`;
+}
+["#f-user", "#f-action"].forEach(s => $(s).addEventListener("change", loadLogs));
+$("#f-refresh").addEventListener("click", loadLogs);
+
+$("#logout").addEventListener("click", async () => { await fetch("/api/auth/logout", { method: "POST" }); location.href = "/login"; });
+
+(async () => {
+  const s = await (await fetch("/api/auth/state")).json();
+  if (!s.user) { location.href = "/login"; return; }
+  me = s.user;
+  $("#who").innerHTML = `Signed in as <strong>${esc(me.name)}</strong>`;
+  $("#domain-hint").textContent = `@${s.domain} only`;
+  loadUsers();
+})();
+</script>
+</body>
+</html>

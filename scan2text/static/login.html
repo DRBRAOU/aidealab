@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Scan2Text</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="auth-wrap">
+  <div class="auth-card">
+    <h1>📘 Scan<span style="color:var(--accent)">2</span>Text</h1>
+    <p class="tag" style="margin-top:0">Sign in with your university account.</p>
+    <form id="form" novalidate>
+      <label for="email">E-mail <span class="hint" id="domain-hint">Your @braou.ac.in address</span></label>
+      <input id="email" type="email" autocomplete="username" required autofocus>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <div id="msg" role="alert"></div>
+      <button class="primary go" type="submit">Sign in</button>
+    </form>
+    <p class="hint" style="margin-top:1.25rem">No account, or forgot your password? Ask a Scan2Text administrator to add you or reset it.</p>
+    <p class="hint" style="margin-top:.75rem">BRAOU Aidea Lab · Developed by Ms Sushumna Rao</p>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let domain = "braou.ac.in";
+fetch("/api/auth/state").then(r => r.json()).then(s => {
+  if (s.user) location.href = "/";
+  if (s.setup_needed) location.href = "/setup";
+  domain = s.domain; $("#domain-hint").textContent = `Your @${domain} address`;
+});
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("#email").value.trim(), msg = $("#msg");
+  if (!email.toLowerCase().endsWith("@" + domain)) {
+    msg.innerHTML = `<div class="form-error">Use your @${esc(domain)} e-mail address.</div>`; $("#email").focus(); return;
+  }
+  const btn = e.submitter; btn.disabled = true; btn.textContent = "Signing in…";
+  const r = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: $("#password").value }) });
+  if (r.ok) { location.href = "/"; return; }
+  msg.innerHTML = `<div class="form-error">${esc((await r.json()).detail)}</div>`;
+  btn.disabled = false; btn.textContent = "Sign in"; $("#password").select();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First-time setup — Scan2Text</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="auth-wrap">
+  <div class="auth-card">
+    <h1>Welcome to Scan2Text</h1>
+    <p class="tag" style="margin-top:0">Create the first administrator account. Admins add every other user.</p>
+    <form id="form" novalidate>
+      <label for="name">Your name</label>
+      <input id="name" type="text" autocomplete="name" required autofocus>
+      <label for="email">E-mail <span class="hint" id="domain-hint">Must be a @braou.ac.in address</span></label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">Password <span class="hint">At least 8 characters, letters and numbers</span></label>
+      <input id="password" type="password" autocomplete="new-password" required>
+      <label for="password2">Type the password again</label>
+      <input id="password2" type="password" autocomplete="new-password" required>
+      <div id="msg" role="alert"></div>
+      <button class="primary go" type="submit">Create administrator</button>
+    </form>
+    <p class="hint" style="margin-top:1.25rem">This page only works on the computer running Scan2Text, and disappears once the first account exists.</p>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let domain = "braou.ac.in";
+fetch("/api/auth/state").then(r => r.json()).then(s => {
+  if (!s.setup_needed) location.href = "/login";
+  domain = s.domain; $("#domain-hint").textContent = `Must be a @${domain} address`;
+});
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("#msg"), fail = t => msg.innerHTML = `<div class="form-error">${esc(t)}</div>`;
+  if (!$("#email").value.trim().toLowerCase().endsWith("@" + domain)) return fail(`Use a @${domain} e-mail address.`);
+  if ($("#password").value !== $("#password2").value) return fail("The two passwords don't match.");
+  const r = await fetch("/api/auth/setup", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: $("#name").value, email: $("#email").value, password: $("#password").value }) });
+  if (r.ok) location.href = "/admin";
+  else fail((await r.json()).detail);
+});
+</script>
+</body>
+</html>
